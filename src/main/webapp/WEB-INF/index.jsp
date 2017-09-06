@@ -6,20 +6,53 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>自定义表单</title>
 <script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery-3.2.1.js"></script>
+<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
 <script type="text/javascript">
-	function myfunction(element) {
-		alert("您好！")
-		var str = "<tr><td></td><td></td><td></td><td><input type=\"button\" name=\"modify\" value=\"修改\"><input type=\"button\" name=\"del\" value=\"删除\"><input type=\"button\"";
+	function myfunction() {
+		//alert("您好！")
+		/* var str = "<tr><td></td><td></td><td></td><td><input type=\"button\" name=\"modify\" value=\"修改\"><input type=\"button\" name=\"del\" value=\"删除\"><input type=\"button\"";
 		str+="id=\"add_row\" value=\"增加\" onclick=\"myfunction(this)\"></td></tr>";
 		alert(str); 
-		$(element).parent("tr").append(str);
+		alter($("#mytable").last("tr"));
+		$(element).parent("tr").after(str); */
+		var tab = document.getElementById("mytable"); //获得表格
+		var colsNum = tab.rows.item(0).cells.length; //表格的列数
+		//表格当前的行数 
+		var num = document.getElementById("mytable").rows.length;
+		var rownum = num;
+		tab.insertRow(rownum);
+		for (var i = 0; i < 3; i++) {
+			tab.rows[rownum].insertCell(i);//插入列
+			if (i == 0) {
+				tab.rows[rownum].cells[i].innerHTML = '<input name="zname" type="text"/>';
+			} else if (i == 1) {
+				tab.rows[rownum].cells[i].innerHTML = '<input name="ename" type="text"/>';
+			} else if (i == 2) {
+				tab.rows[rownum].cells[i].innerHTML = "<select name=\"type\"><option value=\"0\">下拉框</option><option value=\"1\">文本框</option><option value=\"2\">输入框</option></select>";
+			}
+		}
+		/* <input type=\"button\" name=\"modify\" value=\"修改\"> */
+		tab.rows[rownum].insertCell(i);
+		tab.rows[rownum].cells[i].innerHTML = '<td><input type=\"button\" name=\"del\" value=\"删除\" onclick=\"delRow(this)\"></td>';
 	}
-	function add() {  
-        var trObj = document.createElement("tr");  
-        var trObj.innerHTML = "<tr><td></td><td></td><td></td><td><input type=\"button\" name=\"modify\" value=\"修改\"><input type=\"button\" name=\"del\" value=\"删除\"><input type=\"button\"";
-        trObj.innerHTML+="id=\"add_row\" value=\"增加\" onclick=\"myfunction(this)\"></td></tr>";
-        $(element).parent("tr").appendChild(trObj);  
-    }  
+	function delRow(obj) {
+		//var Row = obj.parentNode;
+		var Row = obj.parentNode; //tr
+		//alert(Row.tagName);
+		while (Row.tagName.toLowerCase() != "tr") {
+			Row = Row.parentNode;
+		}
+		Row.parentNode.removeChild(Row); //删除行
+	
+	}
+	/* function myfunction(element) { 
+	alert("您好！"+element); 
+	   var trObj = document.createElement("tr");  
+	   trObj.innerHTML = "<tr><td></td><td></td><td></td><td><input type=\"button\" name=\"modify\" value=\"修改\"><input type=\"button\" name=\"del\" value=\"删除\"><input type=\"button\"";
+	   trObj.innerHTML+="id=\"add_row\" value=\"增加\" onclick=\"myfunction(this)\"></td></tr>";
+	   element.parent("tr").appendto(trObj);  
+	}   */
 </script>
 </head>
 <body>
@@ -39,12 +72,13 @@
 						<option value="1">文本框</option>
 						<option value="2">输入框</option>
 				</select></td>
-				<td><input type="button" name="modify" value="修改"><input
-					type="button" name="del" value="删除"> <input type="button"
-					name="add_row" value="增加" onclick="myfunction(this)"></td>
+				<!--<input type="button" name="modify" value="修改">  -->
+				<td><input
+					type="button" name="del" value="删除" onclick="delRow(this)"></td>
 			</tr>
 		</table>
 		<br> <input type="button" name="create_form" value="生成表单">
+		<input type="button" name="add_row" value="增加" onclick="myfunction()">
 	</form>
 
 </body>
