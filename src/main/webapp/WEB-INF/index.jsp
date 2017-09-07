@@ -5,17 +5,14 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>自定义表单</title>
-<script type="text/javascript" src="js/jquery.min.js"></script>
-<script type="text/javascript" src="js/jquery-3.2.1.js"></script>
-<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+<%
+	pageContext.setAttribute("APP_PATH", request.getContextPath());
+%>
+<script type="text/javascript" src="${APP_PATH}/js/jquery.min.js"></script>
+<script type="text/javascript" src="${APP_PATH}/js/jquery-3.2.1.js"></script>
+<script type="text/javascript" src="${APP_PATH}/js/jquery-3.2.1.min.js"></script>
 <script type="text/javascript">
 	function myfunction() {
-		//alert("您好！")
-		/* var str = "<tr><td></td><td></td><td></td><td><input type=\"button\" name=\"modify\" value=\"修改\"><input type=\"button\" name=\"del\" value=\"删除\"><input type=\"button\"";
-		str+="id=\"add_row\" value=\"增加\" onclick=\"myfunction(this)\"></td></tr>";
-		alert(str); 
-		alter($("#mytable").last("tr"));
-		$(element).parent("tr").after(str); */
 		var tab = document.getElementById("mytable"); //获得表格
 		var colsNum = tab.rows.item(0).cells.length; //表格的列数
 		//表格当前的行数 
@@ -29,7 +26,7 @@
 			} else if (i == 1) {
 				tab.rows[rownum].cells[i].innerHTML = '<input name="ename" type="text"/>';
 			} else if (i == 2) {
-				tab.rows[rownum].cells[i].innerHTML = "<select name=\"type\"><option value=\"0\">下拉框</option><option value=\"1\">文本框</option><option value=\"2\">输入框</option></select>";
+				tab.rows[rownum].cells[i].innerHTML = "<select name=\"type\"><option value=\"2\">输入框</option><option value=\"1\">文本框</option><option value=\"0\">下拉框</option></select>";
 			}
 		}
 		/* <input type=\"button\" name=\"modify\" value=\"修改\"> */
@@ -44,8 +41,91 @@
 			Row = Row.parentNode;
 		}
 		Row.parentNode.removeChild(Row); //删除行
-	
 	}
+
+	function createform() {
+		var tab = document.getElementById("mytable"); //获得表格
+		var rowsnum = tab.rows.length;
+		//alert("rowsnum:" + rowsnum);
+		var ename = "";
+		var zname = "";
+		var type = "";
+		var json = "";
+		var jsonstr = "";
+		for (var i = 1; i < rowsnum; i++) {
+		//	alert(i);
+			//alert("rowsnum:" + rowsnum);
+			for (var j = 0; j < 3; j++) {
+				//alert("j:" + j);
+				if (j == 2) {
+					type = tab.getElementsByTagName("tr")[i]
+							.getElementsByTagName("td")[j]
+							.getElementsByTagName("select")[0].value;
+					//alert("type"+type);
+				} else if (j == 1) {
+					ename = tab.getElementsByTagName("tr")[i]
+							.getElementsByTagName("td")[j]
+							.getElementsByTagName("input")[0].value;
+				} else if (j == 0) {
+					zname = tab.getElementsByTagName("tr")[i]
+							.getElementsByTagName("td")[j]
+							.getElementsByTagName("input")[0].value;
+				}
+			}
+			/*  json = zname + "." + ename + "." + type + ",";
+			jsonstr += json; */ 
+		
+			json="\""+ i+"\":{\"zname\":\"";
+			json+=zname;
+			//alert("json:"+json); 
+			json+=",\"ename\":\"";
+			json+=ename;
+			json+="\",\"type\":\"";
+			json+=type;
+			json+="\"},";
+			jsonstr += json;
+		}
+		//alert(jsonstr.length-1);
+		jsonstr = jsonstr.substring(0, jsonstr.length - 1);
+		jsonstr="{"+jsonstr+"}";
+		alert(jsonstr);
+		return jsonstr;
+	}
+	$(function() {
+		$("input#createform").click(function() {
+			//alert("1231");
+			 var arr = createform();
+			 $.ajax({
+			        type: "POST",
+			        url: "RequestData.ashx",
+			        contentType: "application/json; charset=utf-8",
+			        data: JSON.stringify(arr),
+			        dataType: "json",
+			        success: function (message) {
+			            if (message > 0) {
+			                alert("请求已提交！我们会尽快与您取得联系");
+			            }
+			        },
+			        error: function (message) {
+			        	alert("请求提交失败");
+			        }
+			    });
+			 /*var arr = createform().split(',');
+			for(var i=0;i<arr.length;i++){
+				var list=arr[i].split(".");
+				arr[i]=list;
+			}
+			 for(var i=0;i<arr.length;i++){
+				for(var j=0;j<arr[i].length;j++){
+					alert(arr[i][j]);
+				}
+			} */
+		});
+	})
+	/* //获取饱包含汉字的字符长度
+	function strlength(str){
+		return str.replace(/[\u0391-\uFFE5]/g,"aa").length;
+	} */
 	/* function myfunction(element) { 
 	alert("您好！"+element); 
 	   var trObj = document.createElement("tr");  
@@ -68,17 +148,17 @@
 				<td><input type="text" name="zname" value=""></td>
 				<td><input type="text" name="ename" value=""></td>
 				<td><select name="type">
-						<option value="0">下拉框</option>
-						<option value="1">文本框</option>
 						<option value="2">输入框</option>
+						<option value="1">文本框</option>
+						<option value="0">下拉框</option>
 				</select></td>
 				<!--<input type="button" name="modify" value="修改">  -->
-				<td><input
-					type="button" name="del" value="删除" onclick="delRow(this)"></td>
+				<td><input type="button" name="del" value="删除"
+					onclick="delRow(this)"></td>
 			</tr>
 		</table>
-		<br> <input type="button" name="create_form" value="生成表单">
-		<input type="button" name="add_row" value="增加" onclick="myfunction()">
+		<br> <input type="button" id="createform" value="生成表单"> <input
+			type="button" name="add_row" value="增加" onclick="myfunction()">
 	</form>
 
 </body>
